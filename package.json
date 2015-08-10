@@ -1,0 +1,24 @@
+{
+  "name": "Swipe",
+  "version": "0.0.2",
+  "description": "Swipe component.",
+  "author": "Shengjie.Yu <shengjie.yu@shenma-inc.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nutteam/nut.components.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nutteam/nut.components/issues"
+  },
+  "keywords": [
+    "nut",
+    "front-end",
+    "uc"
+  ],
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-uglify": "^1.2.0"
+  },
+  "scripts": {},
+  "license": "MIT"
+}
