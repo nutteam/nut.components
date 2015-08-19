@@ -31,8 +31,8 @@
     this.init();
   };
 
-  // debounce ratio
-  Swipe.debounceRatio = 0.4;
+  // bounce ratio
+  Swipe.bounceRatio = 0.4;
 
   var supportTouch = 'ontouchstart' in window;
 
@@ -110,7 +110,7 @@
         return false;
       }
 
-      if(this.debouncing) {
+      if(this.bouncing) {
         return false;
       }
 
@@ -131,7 +131,7 @@
 
       this.tracking = false;
 
-      if(this.debouncing) {
+      if(this.bouncing) {
         return false;
       }
 
@@ -144,7 +144,7 @@
 
       var index, // translate index
         edge, // transform edge
-        translateNumber = this.getDebounceTranslateValue(diffX); // swipe translate number
+        translateNumber = this.getBounceTranslateValue(diffX); // swipe translate number
 
       // not translate
       if(translateNumber === 0) {
@@ -188,10 +188,10 @@
       // translate to last swipe element
       if(diffX < this.lastSwipeTranslate) {
         edge = this.lastSwipeTranslate;
-        diffX = edge + (diffX - edge) * Swipe.debounceRatio;
+        diffX = edge + (diffX - edge) * Swipe.bounceRatio;
       } else if(diffX > this.firstSwipeTranslate) { // translate to first swipe element
         edge = this.firstSwipeTranslate;
-        diffX = edge + (diffX - edge) * Swipe.debounceRatio;
+        diffX = edge + (diffX - edge) * Swipe.bounceRatio;
       }
 
       this.$wrapper.css({
@@ -201,12 +201,12 @@
 
       // exclude touchstart, touchmove
       if(this.tracking !== true) {
-        this.debounce(diffX);
+        this.bounce(diffX);
       }
     },
 
-    debounce: function(diffX) {
-      this.debouncing = true;
+    bounce: function(diffX) {
+      this.bouncing = true;
 
       var step = this.elWidth,
         swipe = this;
@@ -217,24 +217,27 @@
       } else if(diffX > this.firstSwipeTranslate) {
         diffX = this.firstSwipeTranslate;
       } else {
-        diffX = this.getDebounceTranslateValue(diffX) * step;
+        diffX = this.getBounceTranslateValue(diffX) * step;
       }
 
       this.lastTranslateX = diffX;
 
-      // when debouncing, touchstart,touchmove cancaled
-      this.$wrapper.on('webkitTransitionEnd', function() {
-        $(this).css({
+      var bounceCallback = function() {
+        $(swipe.$wrapper).css({
           'transition-duration': '0ms'
         });
-        swipe.debouncing = null;
+        swipe.bouncing = null;
+      };
+
+      // when bouncing, touchstart,touchmove cancaled
+      this.$wrapper.on('webkitTransitionEnd', function() {
+        bounceCallback();
       });
 
-      (function(swipe) {
-        setTimeout(function() {
-          swipe.debouncing = null;
-        }, 300);
-      })(swipe);
+      // sometimes, webkitTransitionEnd not fire, so need fallback
+      setTimeout(function() {
+        bounceCallback();
+      }, 300);
 
       this.$wrapper.css({
         '-webkit-transform': 'translateX(' + diffX + 'px)',
@@ -265,7 +268,7 @@
     },
 
     // get true translate distance
-    getDebounceTranslateValue: function(diffX) {
+    getBounceTranslateValue: function(diffX) {
       var step = this.elWidth,
         ret;
 
